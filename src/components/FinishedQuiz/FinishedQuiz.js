@@ -1,10 +1,10 @@
 import classes from './FinishedQuiz.module.css'
+import Button from '../UI/Button/Button'
 
 const FinishedQuiz = props => {
+    const rightAnswer = props.quiz.filter((quizItem) => props.resuls[quizItem.id] === 'success').length
     return (
         <div className={classes.FinishedQuiz}>
-            {console.log(props.resuls)}
-            {console.log(props.quiz)}
             <ul>
                 {props.quiz.map((quizItem, index) => {
                     const cls = [
@@ -25,10 +25,10 @@ const FinishedQuiz = props => {
                 }
             </ul>
 
-            <p>Правильно {1} из {props.quiz.length}</p>
-
+            <p>Правильно {rightAnswer} из {props.quiz.length}</p>
             <div>
-                <button>Повторить</button>
+                <Button onClick={props.onRepeatClick} type='primary'>Повторить</Button>
+                <Button type='success'>Перейти в список тестов</Button>
             </div>
         </div>
     )

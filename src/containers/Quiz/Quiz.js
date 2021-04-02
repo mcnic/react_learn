@@ -36,6 +36,15 @@ class Quiz extends Component {
         ],
     }
 
+    onRepeatHandler = () => {
+        this.setState({
+            results: {},
+            isFinished: false,
+            activeQuestion: 0,
+            answerState: null
+        })
+    }
+
     onAnswerClicHandler = (id) => {
         if (this.state.answerState) {
             const key = Object.keys(this.state.answerState)[0]
@@ -91,14 +100,15 @@ class Quiz extends Component {
                             ? <FinishedQuiz
                                 resuls={this.state.results}
                                 quiz={this.state.quiz}
+                                onRepeatClick={this.onRepeatHandler}
                             />
                             : <ActiveQuiz
                                 answers={this.state.quiz[this.state.activeQuestion].answers}
                                 question={this.state.quiz[this.state.activeQuestion].question}
-                                onAnswerClick={this.onAnswerClicHandler}
                                 quizLength={this.state.quiz.length}
                                 activeQuestion={this.state.activeQuestion + 1}
                                 state={this.state.answerState}
+                                onAnswerClick={this.onAnswerClicHandler}
                             />
                     }
                 </div>
