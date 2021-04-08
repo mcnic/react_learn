@@ -23,19 +23,21 @@ class Layout extends Component {
     render() {
         return (
             <div className={classes.Layout}>
-                <Drawer
-                    isOpen={this.state.menu}
-                    onClose={this.closeMenuHandler}
-                />
+                <React.StrictMode>
+                    <Drawer
+                        isOpen={this.state.menu}
+                        onClose={this.closeMenuHandler}
+                    />
 
-                <MenuToggle
-                    isOpen={this.state.menu}
-                    onToggle={this.toggleMenuHandler}
-                />
+                    <MenuToggle
+                        isOpen={this.state.menu}
+                        onToggle={this.toggleMenuHandler}
+                    />
 
-                <main>
-                    {this.props.children}
-                </main>
+                    <main>
+                        {this.props.children}
+                    </main>
+                </React.StrictMode>
             </div>
         )
     }
