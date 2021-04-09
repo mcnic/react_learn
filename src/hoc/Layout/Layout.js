@@ -33,11 +33,11 @@ class Layout extends Component {
                         isOpen={this.state.menu}
                         onToggle={this.toggleMenuHandler}
                     />
-
-                    <main>
-                        {this.props.children}
-                    </main>
                 </React.StrictMode>
+
+                <main>
+                    {this.props.children}
+                </main>
             </div>
         )
     }
