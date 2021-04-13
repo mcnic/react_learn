@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import classes from './Auth.module.css'
 import Button from '../../components/UI/Button/Button'
 import Input from '../../components/UI/Input/Input'
-import is from 'is_js'
+import { validate } from '../../form/formFramework'
 
 export default class Auth extends Component {
     state = {
@@ -52,36 +52,12 @@ export default class Auth extends Component {
         const control = { ...formControls[controlName] }
         control.value = event.target.value
         control.touched = true
-        control.valid = this.validate(control.value, control.validation)
+        control.valid = validate(control.value, control.validation)
 
         formControls[controlName] = control
         const isFormValid = Object.keys(formControls).reduce((valid, key) => valid && formControls[key].valid, true)
 
         this.setState({ formControls, isFormValid })
-    }
-
-    validate(value, validation) {
-        if (!validation) {
-            return true
-        }
-
-        let isFormValid = true
-
-        if (validation.required === true) {
-            isFormValid = value.trim() !== '' && isFormValid
-        }
-
-        if (validation.email) {
-            // const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-            // isFormValid = re.test(String(value).toLowerCase()) && isFormValid
-            isFormValid = is.email(value) && isFormValid
-        }
-
-        if (validation.minLength) {
-            isFormValid = value.length >= validation.minLength && isFormValid
-        }
-
-        return isFormValid
     }
 
     renderInputs() {
