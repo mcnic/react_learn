@@ -3,6 +3,7 @@ import classes from './Auth.module.css'
 import Button from '../../components/UI/Button/Button'
 import Input from '../../components/UI/Input/Input'
 import { validate } from '../../form/formFramework'
+import axios from 'axios'
 
 export default class Auth extends Component {
     state = {
@@ -37,14 +38,34 @@ export default class Auth extends Component {
         isFormValid: false
     }
 
-    clickHandler = event => {
+    loginHandler = async event => {
         event.preventDefault()
-        console.log('success')
+        try {
+            const authData = {
+                email: this.state.formControls.email.value,
+                password: this.state.formControls.password.value,
+                returnSecureToken: true
+            }
+            const response = await axios.post('https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyCsacmGEn3dPQzx5yjHYfXQKdWGt-_P5P8', authData)
+            console.log(response)
+        } catch (error) {
+            console.log(error);
+        }
     }
 
-    registerHandler = event => {
+    registerHandler = async event => {
         event.preventDefault()
-        console.log('register')
+        try {
+            const authData = {
+                email: this.state.formControls.email.value,
+                password: this.state.formControls.password.value,
+                returnSecureToken: true
+            }
+            const response = await axios.post('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyCsacmGEn3dPQzx5yjHYfXQKdWGt-_P5P8', authData)
+            console.log(response)
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     onChangeHandler = (event, controlName) => {
@@ -90,7 +111,7 @@ export default class Auth extends Component {
 
                         <Button
                             type='success'
-                            onClick={this.clickHandler}
+                            onClick={this.loginHandler}
                             disabled={!this.state.isFormValid}
                         >
                             Войти

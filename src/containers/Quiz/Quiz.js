@@ -2,6 +2,8 @@ import React, { Component } from 'react'
 import classes from './Quiz.module.css'
 import ActiveQuiz from '../../components/ActiveQuiz/ActiveQuiz'
 import FinishedQuiz from '../../components/FinishedQuiz/FinishedQuiz'
+import axios from '../../axios/axios-quiz'
+import Loader from '../../components/UI/Loader/Loader'
 
 class Quiz extends Component {
     state = {
@@ -9,31 +11,8 @@ class Quiz extends Component {
         isFinished: false,
         activeQuestion: 0,
         answerState: null, // {[id]: 'success' 'error'}
-        quiz: [
-            {
-                id: 0,
-                question: 'Какого цвета небо?',
-                rightAnswers: 2,
-                answers: [
-                    { text: 'Красного', id: 1 },
-                    { text: 'Синего', id: 2 },
-                    { text: 'Желтого', id: 3 },
-                    { text: 'Черного', id: 4 }
-                ]
-            },
-            {
-                id: 1,
-                question: 'В каком году основан Санкт-Петербург?',
-                rightAnswers: 3,
-                answers: [
-                    { text: '1700', id: 1 },
-                    { text: '1702', id: 2 },
-                    { text: '1703', id: 3 },
-                    { text: '1803', id: 4 }
-                ]
-            }
-
-        ],
+        quiz: [],
+        loading: true
     }
 
     onRepeatHandler = () => {
@@ -56,7 +35,7 @@ class Quiz extends Component {
         const question = this.state.quiz[this.state.activeQuestion]
         const results = this.state.results
 
-        if (question.rightAnswers === id) {
+        if (question.rightAnswerId === id) {
             results[this.state.activeQuestion] = 'success'
             this.setState({
                 answerState: { [id]: 'success' },
@@ -69,6 +48,7 @@ class Quiz extends Component {
                 results
             })
         }
+
         const timeout = window.setTimeout(() => {
             if (this.quizFinished()) {
                 this.setState({
@@ -76,22 +56,38 @@ class Quiz extends Component {
                 })
             } else {
                 this.setState({
-                    'activeQuestion': this.state.activeQuestion + 1
-                })
-                this.setState({
+                    activeQuestion: this.state.activeQuestion + 1,
                     answerState: null
                 })
             }
 
             window.clearTimeout(timeout)
         }, 1000)
-
     }
 
     quizFinished = () => this.state.activeQuestion >= (this.state.quiz.length - 1)
 
-    componentDidMount() {
-        // console.log('quiz id ', this.props.match.params.id)
+    async componentDidMount() {
+        try {
+            const response = await axios.get(`quizes/${this.props.match.params.id}.json`)
+            if (response.data === null) {
+                throw new Error("error load data")
+            }
+
+            const quiz = []
+            response.data.forEach(element => {
+                quiz.push(element)
+            });
+            this.setState({
+                quiz,
+            })
+        } catch (error) {
+            console.log(error)
+        } finally {
+            this.setState({
+                loading: false
+            })
+        }
     }
 
     render() {
@@ -100,20 +96,24 @@ class Quiz extends Component {
                 <div className={classes.QuizWrapper}>
                     <h1>Ответьте на все вопросы</h1>
                     {
-                        this.state.isFinished
-                            ? <FinishedQuiz
-                                resuls={this.state.results}
-                                quiz={this.state.quiz}
-                                onRepeatClick={this.onRepeatHandler}
-                            />
-                            : <ActiveQuiz
-                                answers={this.state.quiz[this.state.activeQuestion].answers}
-                                question={this.state.quiz[this.state.activeQuestion].question}
-                                quizLength={this.state.quiz.length}
-                                activeQuestion={this.state.activeQuestion + 1}
-                                state={this.state.answerState}
-                                onAnswerClick={this.onAnswerClicHandler}
-                            />
+                        this.state.loading
+                            ? <div><Loader /></div>
+                            : this.state.isFinished
+                                ? <FinishedQuiz
+                                    results={this.state.results}
+                                    quiz={this.state.quiz}
+                                    onRepeatClick={this.onRepeatHandler}
+                                />
+                                : this.state.quiz.length === 0
+                                    ? <h1>нет данных</h1>
+                                    : <ActiveQuiz
+                                        answers={this.state.quiz[this.state.activeQuestion].answers}
+                                        question={this.state.quiz[this.state.activeQuestion].question}
+                                        quizLength={this.state.quiz.length}
+                                        activeQuestion={this.state.activeQuestion + 1}
+                                        state={this.state.answerState}
+                                        onAnswerClick={this.onAnswerClicHandler}
+                                    />
                     }
                 </div>
             </div>

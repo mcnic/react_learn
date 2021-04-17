@@ -3,15 +3,16 @@ import Button from '../UI/Button/Button'
 import { Link } from 'react-router-dom'
 
 const FinishedQuiz = props => {
-    const rightAnswer = props.quiz.filter((quizItem) => props.resuls[quizItem.id] === 'success').length
+    const rightAnswer = props.quiz.filter((quizItem, index) => props.results[quizItem.id] === 'success').length
+
     return (
         <div className={classes.FinishedQuiz}>
             <ul>
                 {props.quiz.map((quizItem, index) => {
                     const cls = [
                         'fa',
-                        props.resuls[quizItem.id] === 'error' ? 'fa-times' : 'fa-check',
-                        props.resuls[quizItem.id] === 'error' ? classes.error : classes.success
+                        props.results[quizItem.id] === 'error' ? 'fa-times' : 'fa-check',
+                        props.results[quizItem.id] === 'error' ? classes.error : classes.success
                     ]
 
                     return (
