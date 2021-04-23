@@ -2,92 +2,22 @@ import React, { Component } from 'react'
 import classes from './Quiz.module.css'
 import ActiveQuiz from '../../components/ActiveQuiz/ActiveQuiz'
 import FinishedQuiz from '../../components/FinishedQuiz/FinishedQuiz'
-import axios from '../../axios/axios-quiz'
 import Loader from '../../components/UI/Loader/Loader'
+import { connect } from 'react-redux'
+import { fetchQuiz, renewQuiz, clickQuizAnswer } from '../../store/actions/quiz'
 
 class Quiz extends Component {
-    state = {
-        results: {}, // {[id]: 'success' 'error'}
-        isFinished: false,
-        activeQuestion: 0,
-        answerState: null, // {[id]: 'success' 'error'}
-        quiz: [],
-        loading: true
-    }
-
     onRepeatHandler = () => {
-        this.setState({
-            results: {},
-            isFinished: false,
-            activeQuestion: 0,
-            answerState: null
-        })
+        this.props.renewQuiz()
     }
 
     onAnswerClicHandler = (id) => {
-        if (this.state.answerState) {
-            const key = Object.keys(this.state.answerState)[0]
-            if (this.state.answerState[key] === 'success') {
-                return
-            }
-        }
-
-        const question = this.state.quiz[this.state.activeQuestion]
-        const results = this.state.results
-
-        if (question.rightAnswerId === id) {
-            results[this.state.activeQuestion] = 'success'
-            this.setState({
-                answerState: { [id]: 'success' },
-                results
-            })
-        } else {
-            results[this.state.activeQuestion] = 'error'
-            this.setState({
-                answerState: { [id]: 'error' },
-                results
-            })
-        }
-
-        const timeout = window.setTimeout(() => {
-            if (this.quizFinished()) {
-                this.setState({
-                    isFinished: true
-                })
-            } else {
-                this.setState({
-                    activeQuestion: this.state.activeQuestion + 1,
-                    answerState: null
-                })
-            }
-
-            window.clearTimeout(timeout)
-        }, 1000)
+        this.props.clickAnswer(this.props, id)
     }
 
-    quizFinished = () => this.state.activeQuestion >= (this.state.quiz.length - 1)
-
     async componentDidMount() {
-        try {
-            const response = await axios.get(`quizes/${this.props.match.params.id}.json`)
-            if (response.data === null) {
-                throw new Error("error load data")
-            }
-
-            const quiz = []
-            response.data.forEach(element => {
-                quiz.push(element)
-            });
-            this.setState({
-                quiz,
-            })
-        } catch (error) {
-            console.log(error)
-        } finally {
-            this.setState({
-                loading: false
-            })
-        }
+        this.props.fetchQuiz(this.props.match.params.id)
+        this.props.renewQuiz()
     }
 
     render() {
@@ -96,22 +26,22 @@ class Quiz extends Component {
                 <div className={classes.QuizWrapper}>
                     <h1>Ответьте на все вопросы</h1>
                     {
-                        this.state.loading
+                        this.props.loading
                             ? <div><Loader /></div>
-                            : this.state.isFinished
+                            : this.props.isFinished
                                 ? <FinishedQuiz
-                                    results={this.state.results}
-                                    quiz={this.state.quiz}
+                                    results={this.props.results}
+                                    quiz={this.props.quiz}
                                     onRepeatClick={this.onRepeatHandler}
                                 />
-                                : this.state.quiz.length === 0
+                                : this.props.quiz.length === 0
                                     ? <h1>нет данных</h1>
                                     : <ActiveQuiz
-                                        answers={this.state.quiz[this.state.activeQuestion].answers}
-                                        question={this.state.quiz[this.state.activeQuestion].question}
-                                        quizLength={this.state.quiz.length}
-                                        activeQuestion={this.state.activeQuestion + 1}
-                                        state={this.state.answerState}
+                                        answers={this.props.quiz[this.props.activeQuestion].answers}
+                                        question={this.props.quiz[this.props.activeQuestion].question}
+                                        quizLength={this.props.quiz.length}
+                                        activeQuestion={this.props.activeQuestion + 1}
+                                        state={this.props.answerState}
                                         onAnswerClick={this.onAnswerClicHandler}
                                     />
                     }
@@ -121,4 +51,23 @@ class Quiz extends Component {
     }
 }
 
-export default Quiz
+function mapStateToProps(state) {
+    return {
+        results: state.quiz.results,
+        isFinished: state.quiz.isFinished,
+        activeQuestion: state.quiz.activeQuestion,
+        answerState: state.quiz.answerState,
+        quiz: state.quiz.quiz,
+        loading: state.quiz.loading
+    }
+}
+
+function mapDaspatchToProps(dispatch) {
+    return {
+        fetchQuiz: quizId => dispatch(fetchQuiz(quizId)),
+        clickAnswer: (props, id) => dispatch(clickQuizAnswer(props, id)),
+        renewQuiz: () => dispatch(renewQuiz())
+    }
+}
+
+export default connect(mapStateToProps, mapDaspatchToProps)(Quiz)
