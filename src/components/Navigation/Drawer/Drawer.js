@@ -2,15 +2,10 @@ import React, { Component } from 'react'
 import classes from './Drawer.module.css'
 import Backdrop from '../../UI/Backdrop/Backdrop'
 import { NavLink } from 'react-router-dom'
-
-const links = [
-    { to: '/', label: 'Список', exact: true },
-    { to: '/auth', label: 'Авторизация', exact: false },
-    { to: '/quiz-creator', label: 'Создать', exact: false }
-]
+import { connect } from 'react-redux'
 
 class Drawer extends Component {
-    renderLinks() {
+    renderLinks(links) {
         return links.map((link, index) => {
             return (
                 <li key={index}>
@@ -31,11 +26,22 @@ class Drawer extends Component {
         const cls = [classes.Drawer]
         cls.push(!this.props.isOpen ? classes.close : '')
 
+        let links = [
+            { to: '/', label: 'Список', exact: true }
+        ]
+
+        if (this.props.isAuthenticated) {
+            links.push({ to: '/quiz-creator', label: 'Создать', exact: false })
+            links.push({ to: '/logout', label: 'Выйти', exact: false })
+        } else {
+            links.push({ to: '/auth', label: 'Авторизация', exact: false })
+        }
+
         return (
             <>
                 <nav className={cls.join(' ')}>
                     <ul>
-                        {this.renderLinks()}
+                        {this.renderLinks(links)}
                     </ul>
                 </nav>
                 { this.props.isOpen ? <Backdrop onClose={this.props.onClose} /> : null}
@@ -44,4 +50,8 @@ class Drawer extends Component {
     }
 }
 
-export default Drawer
+const mapStateToProps = state => ({
+    isAuthenticated: !!state.auth.token
+})
+
+export default connect(mapStateToProps)(Drawer);

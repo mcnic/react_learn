@@ -3,9 +3,10 @@ import classes from './Auth.module.css'
 import Button from '../../components/UI/Button/Button'
 import Input from '../../components/UI/Input/Input'
 import { validate } from '../../form/formFramework'
-import axios from 'axios'
+import { connect } from 'react-redux'
+import auth from '../../store/actions/auth'
 
-export default class Auth extends Component {
+class Auth extends Component {
     state = {
         formControls: {
             email: {
@@ -38,34 +39,24 @@ export default class Auth extends Component {
         isFormValid: false
     }
 
-    loginHandler = async event => {
+    loginHandler = event => {
         event.preventDefault()
-        try {
-            const authData = {
-                email: this.state.formControls.email.value,
-                password: this.state.formControls.password.value,
-                returnSecureToken: true
-            }
-            const response = await axios.post('https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyCsacmGEn3dPQzx5yjHYfXQKdWGt-_P5P8', authData)
-            console.log(response)
-        } catch (error) {
-            console.log(error);
-        }
+
+        this.props.auth(
+            this.state.formControls.email.value,
+            this.state.formControls.password.value,
+            true
+        )
     }
 
-    registerHandler = async event => {
+    registerHandler = event => {
         event.preventDefault()
-        try {
-            const authData = {
-                email: this.state.formControls.email.value,
-                password: this.state.formControls.password.value,
-                returnSecureToken: true
-            }
-            const response = await axios.post('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyCsacmGEn3dPQzx5yjHYfXQKdWGt-_P5P8', authData)
-            console.log(response)
-        } catch (error) {
-            console.log(error);
-        }
+
+        this.props.auth(
+            this.state.formControls.email.value,
+            this.state.formControls.password.value,
+            false
+        )
     }
 
     onChangeHandler = (event, controlName) => {
@@ -130,3 +121,10 @@ export default class Auth extends Component {
         )
     }
 }
+
+
+const mapDispatchToProps = dispatch => ({
+    auth: (email, password, isLogin) => dispatch(auth(email, password, isLogin))
+})
+
+export default connect(null, mapDispatchToProps)(Auth)
