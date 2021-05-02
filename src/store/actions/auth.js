@@ -12,7 +12,7 @@ export default function auth(email, password, isLogin) {
             let method = isLogin
                 ? 'accounts:signInWithPassword'
                 : 'accounts:signUp'
-            const apiUrl = `https://identitytoolkit.googleapis.com/v1/${method}?key=AIzaSyCsacmGEn3dPQzx5yjHYfXQKdWGt-_P5P8`
+            const apiUrl = `https://identitytoolkit.googleapis.com/v1/${method}?key=${key}`
             const response = await axios.post(apiUrl, authData)
 
             const data = response.data
